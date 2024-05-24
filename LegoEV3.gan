@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="LegoEV3 Gantt Project" company="ScuderiaEV3" webLink="http://" view-date="2024-05-18" view-index="0" gantt-divider-location="657" resource-divider-location="326" version="3.2.3247" locale="it_IT">
+    <description/>
+    <view zooming-state="default:0" id="gantt-chart">
+        <field id="tpd3" name="Nome" width="130" order="0"/>
+        <field id="tpd4" name="Data d'inizio" width="79" order="1"/>
+        <field id="tpd5" name="Data di fine" width="72" order="2"/>
+        <field id="tpd6" name="Durata" width="50" order="3"/>
+        <field id="tpd10" name="ID" width="34" order="4"/>
+        <field id="tpd9" name="Predecessori" width="75" order="5"/>
+        <field id="tpd13" name="Risorse" width="216" order="6"/>
+        <option id="taskLabelUp" value="name"/>
+        <option id="taskLabelDown" value=""/>
+        <option id="taskLabelRight" value="advancement"/>
+        <option id="filter.completedTasks" value="false"/>
+        <option id="color.recent">
+            <![CDATA[#f4f4f4]]>
+        </option>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Nome" width="223" order="0"/>
+        <field id="1" name="Ruolo predefinito" width="99" order="1"/>
+    </view>
+    <!-- -->
+    <calendars>
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="1" mon="0" tue="0" wed="0" thu="0" fri="0" sat="1"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="0" name="Progetto Gantt" color="#8cb6ce" meeting="false" start="2024-05-21" duration="1" complete="100" thirdDate="2024-05-21" thirdDate-constraint="0" expand="true">
+            <depend id="1" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="1" name="Progetto UML" color="#8cb6ce" meeting="false" start="2024-05-22" duration="2" complete="100" thirdDate="2024-05-21" thirdDate-constraint="0" expand="true">
+            <depend id="2" type="2" difference="0" hardness="Strong"/>
+            <depend id="3" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="2" name="Funionalità Server" color="#8cb6ce" meeting="false" start="2024-05-24" duration="5" complete="0" thirdDate="2024-05-21" thirdDate-constraint="0" expand="true">
+            <depend id="4" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="3" name="Funzionalità Client" color="#8cb6ce" meeting="false" start="2024-05-24" duration="5" complete="0" thirdDate="2024-05-21" thirdDate-constraint="0" expand="true">
+            <depend id="4" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="4" name="Test" color="#8cb6ce" meeting="false" start="2024-05-31" duration="1" complete="0" thirdDate="2024-05-21" thirdDate-constraint="0" expand="true">
+            <depend id="5" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="5" name="Documentazione" color="#8cb6ce" meeting="false" start="2024-06-03" duration="1" complete="0" thirdDate="2024-05-21" thirdDate-constraint="0" expand="true"/>
+    </tasks>
+    <resources>
+        <resource id="0" name="Fabrizio Giuffra" function="Default:0" contacts="" phone=""/>
+        <resource id="1" name="Samuele Davide Ferraro " function="Default:0" contacts="" phone=""/>
+        <resource id="2" name="Cesare Papa" function="Default:0" contacts="" phone=""/>
+        <resource id="3" name="Andrea Termine" function="Default:0" contacts="" phone=""/>
+    </resources>
+    <allocations>
+        <allocation task-id="0" resource-id="0" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="1" resource-id="0" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="4" resource-id="0" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="4" resource-id="1" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="2" resource-id="2" function="Default:0" responsible="true" load="50.0"/>
+        <allocation task-id="5" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="3" resource-id="2" function="Default:0" responsible="false" load="50.0"/>
+        <allocation task-id="2" resource-id="3" function="Default:0" responsible="false" load="50.0"/>
+        <allocation task-id="5" resource-id="3" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="3" resource-id="3" function="Default:0" responsible="true" load="50.0"/>
+    </allocations>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+</project>
