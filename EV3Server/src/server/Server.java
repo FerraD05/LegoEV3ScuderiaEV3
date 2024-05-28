@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class Server {
 	private ServerSocket serverSocket;
@@ -16,25 +15,25 @@ public class Server {
     private Thread listenerThread;
     private volatile boolean running = true;
     
-    private static final String SQUARE = "0";
-	private static final String X = "1";
-	private static final String O = "2";
-	private static final String TRIANGLE = "3";
-	private static final String L1 = "4";
-	private static final String R1 = "5";
-	private static final String ARROWS = "pov";
-	private static final String SHARE = "8";
-	private static final String OPTION = "9";
-	private static final String LSTICKBTN = "10";
-	private static final String RSTICKBTN = "11";
-	private static final String PSBTN = "12";
-	private static final String TOUCHPADBTN = "13";
-	private static final String RSTICKXAXIS = "z";
-	private static final String RSTICKYAXIS = "rz";
-	private static final String LSTICKXAXIS = "x";
-	private static final String LSTICKYAXIS = "y";
-	private static final String R2 = "ry";
-	private static final String L2 = "rx";
+    public static final String SQUARE = "0";
+	public static final String X = "1";
+	public static final String O = "2";
+	public static final String TRIANGLE = "3";
+	public static final String L1 = "4";
+	public static final String R1 = "5";
+	public static final String ARROWS = "pov";
+	public static final String SHARE = "8";
+	public static final String OPTION = "9";
+	public static final String LSTICKBTN = "10";
+	public static final String RSTICKBTN = "11";
+	public static final String PSBTN = "12";
+	public static final String TOUCHPADBTN = "13";
+	public static final String RSTICKXAXIS = "z";
+	public static final String RSTICKYAXIS = "rz";
+	public static final String LSTICKXAXIS = "x";
+	public static final String LSTICKYAXIS = "y";
+	public static final String R2 = "ry";
+	public static final String L2 = "rx";
 	
     public Server() {
         super();
@@ -83,14 +82,14 @@ public class Server {
                             System.out.println("INDIETRO" + ": " + btnValue * 100 + "%");
                             break;
                         case O:
-                        	System.out.println("BOOST: ON");
+                        	System.out.println("BOOST: " + (btnValue == 1f ? "ON" : "OFF"));
                         	break;
                         case SQUARE:
-                        	System.out.println("ACTION: ON");
+                        	System.out.println("ACTION: " + (btnValue == 1f ? "ON" : "OFF"));
                         	break;
                         default:
                         	//DEBUG
-                            System.out.println("Unknown button: " + btnName);
+                            //System.out.println("Unknown button: " + btnName);
                     }
 
                     } else {
