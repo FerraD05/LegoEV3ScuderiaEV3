@@ -26,14 +26,10 @@ public class Client {
 
     public String sendMessage(String msg) throws IOException {
         out.println(msg);
-        String resp = in.readLine();
-        return resp;
-    }
-    
-    public String move(String msg) throws IOException {
-        out.println(msg);
-        String resp = in.readLine();
-        return resp;
+        out.flush(); // Flush the output stream
+        //String resp = in.readLine();
+        //return resp;
+        return "";
     }
 
     public void stopConnection() throws IOException {
