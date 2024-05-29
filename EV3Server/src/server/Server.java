@@ -2,18 +2,22 @@ package server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import lejos.hardware.motor.Motor;
+import lejos.hardware.motor.NXTRegulatedMotor;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
+	
 	private ServerSocket serverSocket;
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
     private Thread listenerThread;
     private volatile boolean running = true;
+    private NXTRegulatedMotor b = Motor.A;
     
     public static final String SQUARE = "0";
 	public static final String X = "1";
@@ -43,6 +47,10 @@ public class Server {
         try {
             serverSocket = new ServerSocket(port);
             System.out.println("Server started, waiting for client to connect...");
+            
+            b.setSpeed(500);
+            b.forward();
+            b.stop();
 
             clientSocket = serverSocket.accept();
             System.out.println("Client connected");
@@ -58,52 +66,55 @@ public class Server {
     }
 
     private void startListenerThread() {
-        listenerThread = new Thread(() -> {
-            while (running) {
-                try {
-                    String message = in.readLine();
-                    if (message != null) {
-                        //System.out.println("Incoming message: " + message);
-                    	String[] values = message.split(" ");
-                    	String btnName = values[0];
-                    	float btnValue = Float.parseFloat(values[1]);
-                    	//System.out.println(btName+" " + btValue);
-                    	switch (btnName) {
-                        case LSTICKXAXIS:
-                            System.out.println(btnValue > 0f ? "DESTRA" + ": " + btnValue * 100 + "%" : "SINISTRA" + ": " + btnValue * 100 + "%");
-                            break;
-                        case RSTICKYAXIS:
-                            System.out.println(btnValue > 0f ? "GIU" + ": " + btnValue * 100 + "%" : "SU" + ": " + btnValue * 100 + "%");
-                            break;
-                        case R2:
-                            System.out.println("AVANTI" + ": " + btnValue * 100 + "%");
-                            break;
-                        case L2:
-                            System.out.println("INDIETRO" + ": " + btnValue * 100 + "%");
-                            break;
-                        case O:
-                        	System.out.println("BOOST: " + (btnValue == 1f ? "ON" : "OFF"));
-                        	break;
-                        case SQUARE:
-                        	System.out.println("ACTION: " + (btnValue == 1f ? "ON" : "OFF"));
-                        	break;
-                        default:
-                        	//DEBUG
-                            //System.out.println("Unknown button: " + btnName);
-                    }
+        listenerThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+			    while (running) {
+			        try {
+			            String message = in.readLine();
+			            if (message != null) {
+			                //System.out.println("Incoming message: " + message);
+			            	String[] values = message.split(" ");
+			            	String btnName = values[0];
+			            	float btnValue = Float.parseFloat(values[1]);
+			            	//System.out.println(btName+" " + btValue);
+			            	switch (btnName) {
+			                case LSTICKXAXIS:
+			                    System.out.println(btnValue > 0f ? "DESTRA" + ": " + btnValue * 100 + "%" : "SINISTRA" + ": " + btnValue * 100 + "%");
+			                    break;
+			                case RSTICKYAXIS:
+			                    System.out.println(btnValue > 0f ? "GIU" + ": " + btnValue * 100 + "%" : "SU" + ": " + btnValue * 100 + "%");
+			                    break;
+			                case R2:
+			                    System.out.println("AVANTI" + ": " + btnValue * 100 + "%");
+			                    break;
+			                case L2:
+			                    System.out.println("INDIETRO" + ": " + btnValue * 100 + "%");
+			                    break;
+			                case O:
+			                	System.out.println("BOOST: " + (btnValue == 1f ? "ON" : "OFF"));
+			                	break;
+			                case SQUARE:
+			                	System.out.println("ACTION: " + (btnValue == 1f ? "ON" : "OFF"));
+			                	break;
+			                default:
+			                	//DEBUG
+			                    //System.out.println("Unknown button: " + btnName);
+			            }
 
-                    } else {
-                        //stopConnection();
-                    }
-                } catch (IOException e) {
-                    if (running) {
-                        System.err.println("Error reading incoming message");
-                        e.printStackTrace();
-                        stopConnection();
-                    }
-                }
-            }
-        });
+			            } else {
+			                //stopConnection();
+			            }
+			        } catch (IOException e) {
+			            if (running) {
+			                System.err.println("Error reading incoming message");
+			                e.printStackTrace();
+			                stopConnection();
+			            }
+			        }
+			    }
+			}
+		});
         listenerThread.start();
     }
 
@@ -131,8 +142,9 @@ public class Server {
     }
     
     public static void main(String[] args) {
+    	int portaAscolto = 6969;
 		   Server server = new Server();
-	        server.startListening(12345);
+	        server.startListening(portaAscolto);
 	        
     }
     
