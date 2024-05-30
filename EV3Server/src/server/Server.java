@@ -17,7 +17,9 @@ public class Server {
     private BufferedReader in;
     private Thread listenerThread;
     private volatile boolean running = true;
-    private NXTRegulatedMotor b = Motor.A;
+    private NXTRegulatedMotor leftM = Motor.A;
+    private NXTRegulatedMotor rightM = Motor.B;
+    private int topSpeed = 1000;
     
     public static final String SQUARE = "0";
 	public static final String X = "1";
@@ -40,7 +42,7 @@ public class Server {
 	public static final String L2 = "rx";
 	
     public Server() {
-        super();
+    	super();
     }
 
     public void startListening(int port) {
@@ -48,10 +50,6 @@ public class Server {
             serverSocket = new ServerSocket(port);
             System.out.println("Server started, waiting for client to connect...");
             
-            b.setSpeed(500);
-            b.forward();
-            b.stop();
-
             clientSocket = serverSocket.accept();
             System.out.println("Client connected");
 
@@ -87,9 +85,26 @@ public class Server {
 			                    break;
 			                case R2:
 			                    System.out.println("AVANTI" + ": " + btnValue * 100 + "%");
+			                    
+			                    // setting the speed of the motors
+			                    leftM.setSpeed(topSpeed * Math.abs(btnValue));
+			                    rightM.setSpeed(topSpeed * Math.abs(btnValue));
+			                    
+			                    // moving forward the motors
+			                    leftM.forward();
+			                    rightM.forward();
+			                    
 			                    break;
 			                case L2:
 			                    System.out.println("INDIETRO" + ": " + btnValue * 100 + "%");
+			                    
+			                    // setting the speed of the motors
+			                    leftM.setSpeed(topSpeed * Math.abs(btnValue));
+			                    rightM.setSpeed(topSpeed * Math.abs(btnValue));
+			                    
+			                    // moving backwards the motors
+			                    leftM.backward();
+			                    rightM.backward();
 			                    break;
 			                case O:
 			                	System.out.println("BOOST: " + (btnValue == 1f ? "ON" : "OFF"));
