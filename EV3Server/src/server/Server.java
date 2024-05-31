@@ -69,67 +69,68 @@ public class Server {
         listenerThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-			    while (running) {
-			        try {
-			            String message = in.readLine();
-			            if (message != null) {
-			                //System.out.println("Incoming message: " + message);
-			            	String[] values = message.split(" ");
-			            	String btnName = values[0];
-			            	float btnValue = Float.parseFloat(values[1]);
-			            	//System.out.println(btName+" " + btValue);
-			            	switch (btnName) {
-			                case LSTICKXAXIS:
-			                    System.out.println(btnValue > 0f ? "DESTRA" + ": " + btnValue * 100 + "%" : "SINISTRA" + ": " + btnValue * 100 + "%");
-			                    break;
-			                case RSTICKYAXIS:
-			                    System.out.println(btnValue > 0f ? "GIU" + ": " + btnValue * 100 + "%" : "SU" + ": " + btnValue * 100 + "%");
-			                    break;
-			                case R2:
-			                    System.out.println("AVANTI" + ": " + btnValue * 100 + "%");
-			                    
-			                    // setting the speed of the motors
-			                    leftM.setSpeed(topSpeed * Math.abs(btnValue));
-			                    rightM.setSpeed(topSpeed * Math.abs(btnValue));
-			                    
-			                    // moving forward the motors
-			                    leftM.forward();
-			                    rightM.forward();
-			                    
-			                    break;
-			                case L2:
-			                    System.out.println("INDIETRO" + ": " + btnValue * 100 + "%");
-			                    
-			                    // setting the speed of the motors
-			                    leftM.setSpeed(topSpeed * Math.abs(btnValue));
-			                    rightM.setSpeed(topSpeed * Math.abs(btnValue));
-			                    
-			                    // moving backwards the motors
-			                    leftM.backward();
-			                    rightM.backward();
-			                    break;
-			                case O:
-			                	System.out.println("BOOST: " + (btnValue == 1f ? "ON" : "OFF"));
-			                	break;
-			                case SQUARE:
-			                	System.out.println("ACTION: " + (btnValue == 1f ? "ON" : "OFF"));
-			                	break;
-			                default:
-			                	//DEBUG
-			                    //System.out.println("Unknown button: " + btnName);
-			            }
+				while (running) {
+				    try {
+				        String message = in.readLine();
+				        if (message != null) {
+				            String[] values = message.split(" ");
+				            String btnName = values[0];
+				            float btnValue = Float.parseFloat(values[1]);
+				            String direction = "";
+				            String action = "";
+				            switch (btnName) {
+				                case LSTICKXAXIS:
+				                    direction = btnValue > 0f ? "DESTRA" : "SINISTRA";
+				                    break;
+				                case RSTICKYAXIS:
+				                    direction = btnValue > 0f ? "GIU" : "SU";
+				                    break;
+				                case R2:
+				                    direction = "AVANTI";
+				                    action = "forward";
+				                    break;
+				                case L2:
+				                    direction = "INDIETRO";
+				                    action = "backward";
+				                    break;
+				                case O:
+				                    continue;
+				                case SQUARE:
+				                    continue;
+				                default:
+				                    continue;
+				            }
+				            //System.out.println(direction + ": " + btnValue * 100 + "%");
+				            if (!action.isEmpty()) {
+				                // setting the speed of the motors
+				                leftM.setSpeed(topSpeed * Math.abs(btnValue));
+				                rightM.setSpeed(topSpeed * Math.abs(btnValue));
+				                
+				                if(direction.equals("DESTRA")) {
+				                	rightM.setSpeed(rightM.getSpeed()*Math.abs(btnValue));
+				                }else (direction.equals("SINISTRA")){
+				                	leftM.setSpeed(leftM.getSpeed()*Math.abs(btnValue));
+				                }
+				                
+				                // moving the motors
+				                if (action.equals("forward")) {
+				                    leftM.forward();
+				                    rightM.forward();
+				                } else {
+				                    leftM.backward();
+				                    rightM.backward();
+				                }
+				            }
+				        }
+				    } catch (IOException e) {
+				        if (running) {
+				            System.err.println("Error reading incoming message");
+				            e.printStackTrace();
+				            stopConnection();
+				        }
+				    }
+				}
 
-			            } else {
-			                //stopConnection();
-			            }
-			        } catch (IOException e) {
-			            if (running) {
-			                System.err.println("Error reading incoming message");
-			                e.printStackTrace();
-			                stopConnection();
-			            }
-			        }
-			    }
 			}
 		});
         listenerThread.start();
