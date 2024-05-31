@@ -2,8 +2,10 @@ package server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import lejos.hardware.motor.Motor;
-import lejos.hardware.motor.NXTRegulatedMotor;
+
+import lejos.hardware.motor.EV3LargeRegulatedMotor;
+import lejos.hardware.port.MotorPort;
+
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -17,9 +19,9 @@ public class Server {
     private BufferedReader in;
     private Thread listenerThread;
     private volatile boolean running = true;
-    private NXTRegulatedMotor leftM = Motor.A;
-    private NXTRegulatedMotor rightM = Motor.B;
-    private int topSpeed = 1000;
+    private static EV3LargeRegulatedMotor leftM = new EV3LargeRegulatedMotor(MotorPort.B);	// getting the left motor
+    private static EV3LargeRegulatedMotor rightM = new EV3LargeRegulatedMotor(MotorPort.C);	// getting the right motor
+    private int topSpeed = 1000;	// setting the top speed of the motor
     
     public static final String SQUARE = "0";
 	public static final String X = "1";
