@@ -1,41 +1,174 @@
 package client;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
-public class Client {
-	
-	private Socket clientSocket;
-    private PrintWriter out;
-    private BufferedReader in;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
-	public Client (){
-		super();
-	}
-	
-    public void startConnection(String ip, int port) throws UnknownHostException, IOException {
-        clientSocket = new Socket(ip, port);
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        System.out.println("Connessione avvenuta con successo");
+import net.java.games.input.Component;
+import net.java.games.input.Controller;
+import net.java.games.input.ControllerEnvironment;
+import net.java.games.input.Event;
+import net.java.games.input.EventQueue;
+
+public class GamePadInputReader {
+    private static final float DEADZONE = 0.17f; // Define a deadzone threshold
+    private static final long DEBOUNCE_PERIOD_MS = 16; // Define the debounce period in milliseconds
+    private GamePadStatusPanel statusPanel; // Reference to GamePadStatusPanel
+    private static final long POLLING_INTERVAL_MS = 10; // Define the polling interval in milliseconds
+
+    // Map to track the last event time for each button
+    private Map<String, Long> lastEventTimeMap = new HashMap<>();
+
+    public GamePadInputReader(GamePadStatusPanel statusPanel) {
+        this.statusPanel = statusPanel;
     }
 
-    public String sendMessage(String msg) throws IOException {
-        out.println(msg);
-        out.flush(); // Flush the output stream
-        //String resp = in.readLine();
-        //return resp;
-        return "";
+    public void startReading(Controller controller) throws UnknownHostException, IOException {
+        Client c = new Client();
+        c.startConnection("192.168.67.117", 6969);
+        float prevZvalue = 1f;
+        float prevRZvalue = 1f;
+        float prevXvalue = 1f;
+        float prevYvalue = 1f;
+
+        while (true) {
+            long pollStartTime = System.currentTimeMillis();
+            controller.poll();
+
+            /* Get the controllers event queue */
+            EventQueue queue = controller.getEventQueue();
+
+            /* Create an event object for the underlying plugin to populate */
+            Event event = new Event();
+
+            /* For each object in the queue */
+            while (queue.getNextEvent(event)) {
+                StringBuffer buffer = new StringBuffer(controller.getName()).append(": ");
+                Component comp = event.getComponent();
+                buffer.append(comp.getIdentifier().getName()).append(" changed to ");
+                float value = event.getValue();
+                String componentName = comp.getIdentifier().getName();
+
+             // Get the current time
+                long currentTime = System.currentTimeMillis();
+                long lastEventTime = lastEventTimeMap.getOrDefault(componentName, 0L);
+                
+                // Apply deadzone to analog components and debouncing to non analog buttons.
+                if (comp.isAnalog()) {
+                    if (Math.abs(value) < DEADZONE) {
+                        value = 0.0f;
+                    }
+                }else {
+                	if (currentTime - lastEventTime < DEBOUNCE_PERIOD_MS) {
+                        continue; // Skip this event if within debounce period
+                    }
+                    lastEventTimeMap.put(componentName, currentTime);
+                }
+
+
+                // Comparison with previous values
+                switch (componentName) {
+                    case "z":
+                        if (prevZvalue == value && prevZvalue == 0.0f) {
+                            continue;
+                        }
+                        prevZvalue = value;
+                        break;
+                    case "rz":
+                        if (prevRZvalue == value && prevRZvalue == 0.0f) {
+                            continue;
+                        }
+                        prevRZvalue = value;
+                        break;
+                    case "x":
+                        if (prevXvalue == value && prevXvalue == 0.0f) {
+                            continue;
+                        }
+                        prevXvalue = value;
+                        break;
+                    case "y":
+                        if (prevYvalue == value && prevYvalue == 0.0f) {
+                            continue;
+                        }
+                        prevYvalue = value;
+                        break;
+                    default:
+                        break;
+                }
+
+                // Update status panel with button status
+                statusPanel.updateButtonStatus(componentName, value);
+
+                // DEBUG
+                // System.out.println(buffer.toString());
+
+                c.sendMessage(componentName + " " + value);
+                
+             // Calculate how long the polling loop took and sleep for the remaining time
+                long pollDuration = System.currentTimeMillis() - pollStartTime;
+                long sleepTime = POLLING_INTERVAL_MS - pollDuration;
+                if (sleepTime > 0) {
+                    try {
+                        Thread.sleep(sleepTime);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        }
     }
 
-    public void stopConnection() throws IOException {
-        in.close();
-        out.close();
-        clientSocket.close();
-        System.out.println("Connessione chiusa con successo");
+    public static void main(String[] args) {
+        GamePadStatusPanel statusPanel = new GamePadStatusPanel();
+        GamePadInputReader reader = new GamePadInputReader(statusPanel);
+
+        // Get the available controllers
+        Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
+        if (controllers.length == 0) {
+            System.out.println("Found no controllers.");
+            System.exit(0);
+        }
+        // Display available controllers to the user
+        System.out.println("Available controllers:");
+        for (int i = 0; i < controllers.length; i++) {
+            System.out.println((i + 1) + ". " + controllers[i].getName());
+        }
+        // Prompt the user to choose a controller
+        System.out.print("Enter the number of the controller you want to use: ");
+        Scanner scanner = new Scanner(System.in);
+        int choice = scanner.nextInt();
+        scanner.close();
+        if (choice < 1 || choice > controllers.length) {
+            System.out.println("Invalid choice. Exiting...");
+            System.exit(0);
+        }
+        Controller selectedController = controllers[choice - 1];
+        System.out.println("Using controller: " + selectedController.getName());
+
+        // Initialize frame
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Gamepad Status");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.getContentPane().add(statusPanel);
+            frame.pack();
+            frame.setLocationRelativeTo(null);
+            frame.setSize(700, 500); // Set the desired size of the frame
+            frame.setVisible(true);
+        });
+
+        // Start the reading loop with the selected controller
+        try {
+            reader.startReading(selectedController);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
