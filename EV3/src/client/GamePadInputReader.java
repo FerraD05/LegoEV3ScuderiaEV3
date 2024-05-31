@@ -23,8 +23,29 @@ public class GamePadInputReader {
     private static final float DEADZONE = 0.17f; // Define a deadzone threshold
     private static final long DEBOUNCE_PERIOD_MS = 16; // Define the debounce period in milliseconds
     private GamePadStatusPanel statusPanel; // Reference to GamePadStatusPanel
-    private static final long POLLING_INTERVAL_MS = 10; // Define the polling interval in milliseconds
+    private static final long POLLING_INTERVAL_MS = 50; // Define the polling interval in milliseconds
 
+    public static final String SQUARE = "0";
+	public static final String X = "1";
+	public static final String O = "2";
+	public static final String TRIANGLE = "3";
+	public static final String L1 = "4";
+	public static final String R1 = "5";
+	public static final String ARROWS = "pov";
+	public static final String SHARE = "8";
+	public static final String OPTION = "9";
+	public static final String LSTICKBTN = "10";
+	public static final String RSTICKBTN = "11";
+	public static final String PSBTN = "12";
+	public static final String TOUCHPADBTN = "13";
+	public static final String RSTICKXAXIS = "z";
+	public static final String RSTICKYAXIS = "rz";
+	public static final String LSTICKXAXIS = "x";
+	public static final String LSTICKYAXIS = "y";
+	public static final String R2 = "ry";
+	public static final String L2 = "rx";
+    
+    
     // Map to track the last event time for each button
     private Map<String, Long> lastEventTimeMap = new HashMap<>();
 
@@ -118,11 +139,32 @@ public class GamePadInputReader {
                         break;
                 }
 
+                
+                switch (componentName) {
+                case LSTICKXAXIS:
+                    break;
+                case RSTICKYAXIS:
+                    break;
+                case R2:
+                    value=(value+1)/2;
+                    break;
+                case L2:
+                	value=(value+1)/2;
+                    break;
+                case O:
+                	break;
+                case SQUARE:
+                	break;
+                default:
+                	//DEBUG
+                    //System.out.println("Unknown button: " + btnName);
+            }
+                
                 // Update status panel with button status
                 statusPanel.updateButtonStatus(componentName, value);
 
                 // DEBUG
-                // System.out.println(buffer.toString());
+                System.out.println(buffer.toString());
 
                 c.sendMessage(componentName + " " + value);
 
@@ -146,7 +188,7 @@ public class GamePadInputReader {
      * @param args command line arguments
      */
     public static void main(String[] args) {
-        GamePadStatusPanel statusPanel = new GamePadStatusPanel();
+        final GamePadStatusPanel statusPanel = new GamePadStatusPanel();
         GamePadInputReader reader = new GamePadInputReader(statusPanel);
 
         // Get the available controllers
@@ -181,16 +223,19 @@ public class GamePadInputReader {
         scanner.close();
 
         // Initialize frame
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Gamepad Status");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.getContentPane().add(statusPanel);
-            frame.pack();
-            frame.setLocationRelativeTo(null);
-            frame.setSize(700, 500); // Set the desired size of the frame
-            frame.setVisible(true);
-        });
-
+        SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+			    JFrame frame = new JFrame("Gamepad Status");
+			    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			    frame.getContentPane().add(statusPanel);
+			    frame.pack();
+			    frame.setLocationRelativeTo(null);
+			    frame.setSize(700, 500); // Set the desired size of the frame
+			    frame.setVisible(true);
+			}
+		});
+        /*
         // Start the reading loop with the selected controller
         try {
             reader.startReading(selectedController, ip, port);
@@ -199,5 +244,6 @@ public class GamePadInputReader {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        */
     }
 }
