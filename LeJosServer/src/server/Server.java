@@ -3,8 +3,8 @@ package server;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-//import lejos.hardware.motor.EV3LargeRegulatedMotor;
-//simport lejos.hardware.port.MotorPort;
+import lejos.hardware.motor.EV3LargeRegulatedMotor;
+import lejos.hardware.port.MotorPort;
 
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -19,9 +19,9 @@ public class Server {
     private BufferedReader in;
     private Thread listenerThread;
     private volatile boolean running = true;
-    //private static EV3LargeRegulatedMotor leftM = new EV3LargeRegulatedMotor(MotorPort.B);	// getting the left motor
-    //private static EV3LargeRegulatedMotor rightM = new EV3LargeRegulatedMotor(MotorPort.A);	// getting the right motor
-    //private int topSpeed = 1000;	// setting the top speed of the motor
+    private static EV3LargeRegulatedMotor leftM = new EV3LargeRegulatedMotor(MotorPort.B);	// getting the left motor
+    private static EV3LargeRegulatedMotor rightM = new EV3LargeRegulatedMotor(MotorPort.A);	// getting the right motor
+    private int topSpeed = 1000;	// setting the top speed of the motor
     
     public static final String SQUARE = "0";
 	public static final String X = "1";
@@ -101,16 +101,16 @@ public class Server {
 				                    continue;
 				            }
 				            System.out.println(direction + ": " + btnValue * 100 + "%");
-				            /*if (!action.isEmpty()) {
+				            if (!action.isEmpty()) {
 				                // setting the speed of the motors
 				                leftM.setSpeed(topSpeed * Math.abs(btnValue));
 				                rightM.setSpeed(topSpeed * Math.abs(btnValue));
 				                
 				                if(direction.equals("DESTRA")) {
-				                	rightM.setSpeed(rightM.getSpeed()*Math.abs(btnValue));
+				                	rightM.setSpeed(rightM.getSpeed()-(rightM.getSpeed()*Math.abs(btnValue)));
 				                }else 
 				                	if(direction.equals("SINISTRA")){
-				                	leftM.setSpeed(leftM.getSpeed()*Math.abs(btnValue));
+				                	leftM.setSpeed(leftM.getSpeed()-(leftM.getSpeed()*Math.abs(btnValue)));
 				                }
 				                
 				                // moving the motors
@@ -121,7 +121,7 @@ public class Server {
 				                    leftM.backward();
 				                    rightM.backward();
 				                }
-				            }*/
+				            }
 				        }
 				    } catch (IOException e) {
 				        if (running) {
