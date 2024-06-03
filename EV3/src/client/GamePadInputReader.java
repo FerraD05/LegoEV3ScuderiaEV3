@@ -235,7 +235,7 @@ public class GamePadInputReader {
 			    frame.setVisible(true);
 			}
 		});
-        /*
+       
         // Start the reading loop with the selected controller
         try {
             reader.startReading(selectedController, ip, port);
@@ -244,6 +244,6 @@ public class GamePadInputReader {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        */
+    
     }
 }
