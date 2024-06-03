@@ -77,7 +77,7 @@ public class Server {
 				            String btnName = values[0];
 				            float btnValue = Float.parseFloat(values[1]);
 				            String direction = "";
-				            String action = "";
+				            String action = "AVANTI";
 				            switch (btnName) {
 				                case LSTICKXAXIS:
 				                    direction = btnValue > 0f ? "DESTRA" : "SINISTRA";
