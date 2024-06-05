@@ -20,10 +20,10 @@ import net.java.games.input.EventQueue;
  * It also updates a status panel with the current state of the gamepad buttons and axes.
  */
 public class GamePadInputReader {
-    private static final float DEADZONE = 0.17f; // Define a deadzone threshold
-    private static final long DEBOUNCE_PERIOD_MS = 16; // Define the debounce period in milliseconds
+    private static final float DEADZONE = 0.14f; // Define a deadzone threshold
+    private static final long DEBOUNCE_PERIOD_MS = 5; // Define the debounce period in milliseconds
     private GamePadStatusPanel statusPanel; // Reference to GamePadStatusPanel
-    private static final long POLLING_INTERVAL_MS = 50; // Define the polling interval in milliseconds
+    private static final long POLLING_INTERVAL_MS = 10; // Define the polling interval in milliseconds
 
     public static final String SQUARE = "0";
 	public static final String X = "1";
@@ -70,10 +70,8 @@ public class GamePadInputReader {
     public void startReading(Controller controller, String ip, int port) throws UnknownHostException, IOException {
         Client c = new Client();
         c.startConnection(ip, port);
-        float prevZvalue = 1f;
-        float prevRZvalue = 1f;
-        float prevXvalue = 1f;
-        float prevYvalue = 1f;
+
+
 
         while (true) {
             long pollStartTime = System.currentTimeMillis();
@@ -93,79 +91,24 @@ public class GamePadInputReader {
                 float value = event.getValue();
                 String componentName = comp.getIdentifier().getName();
 
-                // Get the current time
-                long currentTime = System.currentTimeMillis();
-                long lastEventTime = lastEventTimeMap.getOrDefault(componentName, 0L);
-
-                // Apply deadzone to analog components and debouncing to non-analog buttons
+                // Apply deadzone to analog components
                 if (comp.isAnalog()) {
                     if (Math.abs(value) < DEADZONE) {
                         value = 0.0f;
                     }
                 } else {
-                    if (currentTime - lastEventTime < DEBOUNCE_PERIOD_MS) {
+                    // Apply debounce to non-analog buttons
+                    if (isWithinDebouncePeriod(componentName)) {
                         continue; // Skip this event if within debounce period
                     }
-                    lastEventTimeMap.put(componentName, currentTime);
+                    updateLastEventTime(componentName);
                 }
 
-                // Comparison with previous values
-                switch (componentName) {
-                    case "z":
-                        if (prevZvalue == value && prevZvalue == 0.0f) {
-                            continue;
-                        }
-                        prevZvalue = value;
-                        break;
-                    case "rz":
-                        if (prevRZvalue == value && prevRZvalue == 0.0f) {
-                            continue;
-                        }
-                        prevRZvalue = value;
-                        break;
-                    case "x":
-                        if (prevXvalue == value && prevXvalue == 0.0f) {
-                            continue;
-                        }
-                        prevXvalue = value;
-                        break;
-                    case "y":
-                        if (prevYvalue == value && prevYvalue == 0.0f) {
-                            continue;
-                        }
-                        prevYvalue = value;
-                        break;
-                    default:
-                        break;
-                }
 
-                
-                switch (componentName) {
-                case LSTICKXAXIS:
-                    break;
-                case RSTICKYAXIS:
-                    break;
-                case R2:
-                    value=(value+1)/2;
-                    break;
-                case L2:
-                	value=(value+1)/2;
-                    break;
-                case O:
-                	break;
-                case SQUARE:
-                	break;
-                default:
-                	//DEBUG
-                    //System.out.println("Unknown button: " + btnName);
-            }
-                
                 // Update status panel with button status
                 statusPanel.updateButtonStatus(componentName, value);
 
-                // DEBUG
-                System.out.println(buffer.toString());
-
+                // Send input data to client
                 c.sendMessage(componentName + " " + value);
 
                 // Calculate how long the polling loop took and sleep for the remaining time
@@ -180,6 +123,27 @@ public class GamePadInputReader {
                 }
             }
         }
+    }
+    /**
+     * Checks if the button event is within the debounce period.
+     *
+     * @param componentName the name of the component (button)
+     * @return true if within the debounce period, false otherwise
+     */
+    private boolean isWithinDebouncePeriod(String componentName) {
+        long currentTime = System.currentTimeMillis();
+        long lastEventTime = lastEventTimeMap.getOrDefault(componentName, 0L);
+        return currentTime - lastEventTime < DEBOUNCE_PERIOD_MS;
+    }
+
+    /**
+     * Updates the last event time for the specified component (button).
+     *
+     * @param componentName the name of the component (button)
+     */
+    private void updateLastEventTime(String componentName) {
+        long currentTime = System.currentTimeMillis();
+        lastEventTimeMap.put(componentName, currentTime);
     }
 
     /**
@@ -205,8 +169,8 @@ public class GamePadInputReader {
         // Prompt the user to choose a controller
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the number of the controller you want to use: ");
-        int choice = scanner.nextInt();
-
+       // int choice = scanner.nextInt();
+        int choice=4;
         if (choice < 1 || choice > controllers.length) {
             System.out.println("Invalid choice. Exiting...");
             scanner.close();
@@ -217,9 +181,11 @@ public class GamePadInputReader {
 
         // Prompt the user to enter the IP address and port
         System.out.print("Enter the IP address to connect to: ");
-        String ip = scanner.next();
+        //String ip = scanner.next();
+        String ip = "127.0.0.1";
         System.out.print("Enter the port to connect to: ");
-        int port = scanner.nextInt();
+        //int port = scanner.nextInt();
+        int port=6969;
         scanner.close();
 
         // Initialize frame
@@ -235,7 +201,7 @@ public class GamePadInputReader {
 			    frame.setVisible(true);
 			}
 		});
-       
+        
         // Start the reading loop with the selected controller
         try {
             reader.startReading(selectedController, ip, port);
@@ -244,6 +210,6 @@ public class GamePadInputReader {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    
+        
     }
 }
